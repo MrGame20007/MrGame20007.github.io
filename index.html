@@ -46,6 +46,9 @@
 <div class="form-container" id="mainForm">
   <h2>Donut SMP Spawner Request</h2>
   <form id="spawnerForm">
+
+    <button onclick="showAdminPanel()">Open Admin Panel</button>
+
     <label>Discord Username:</label>
     <input type="text" id="discord" required placeholder="Example#1234">
 
@@ -144,6 +147,12 @@ form.addEventListener('submit', async (e) => {
 
 // Admin Panel
 function showAdminPanel() {
+  const password = prompt("Enter the admin password:");
+  if (password !== "donutadmin123") {
+    alert("Incorrect password.");
+    return;
+  }
+
   const container = document.createElement("div");
   container.innerHTML = `
     <h2>🔒 Admin Panel</h2>
