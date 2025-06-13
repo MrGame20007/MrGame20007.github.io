@@ -3,174 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <title>Donut SMP Spawner Request</title>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <style>
-    :root {
-      --bg-color: #f9f9f9;
-      --text-color: #000;
-      --card-color: #fff;
-    }
-
-    [data-theme="dark"] {
-      --bg-color: #1e1e1e;
-      --text-color: #f9f9f9;
-      --card-color: #2c2c2c;
-    }
-
     body {
-      font-family: sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      max-width: 600px;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-container {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
       margin: auto;
-      padding: 2rem;
     }
-
-    .container {
-      background-color: var(--card-color);
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    label, select, input, textarea {
-      display: block;
+    input, select, textarea {
       width: 100%;
       margin-top: 10px;
       padding: 10px;
-      font-size: 1rem;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px;
-      width: 100%;
-      background-color: #5c67f2;
-      color: white;
-      border: none;
       border-radius: 5px;
-      font-size: 1rem;
+      border: none;
+      font-size: 1em;
+    }
+    button {
+      background: #28a745;
+      border: none;
+      padding: 10px 15px;
+      margin-top: 10px;
+      font-size: 1em;
+      border-radius: 5px;
       cursor: pointer;
     }
-
-    #darkModeToggle {
-      margin-bottom: 1rem;
-      cursor: pointer;
-    }
-
-    small {
-      font-size: 0.9rem;
-      color: gray;
-    }
-
-    .recaptcha-container {
-      margin-top: 1rem;
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
     }
   </style>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body data-theme="light">
+<body>
 
-  <div class="container">
-    <button id="darkModeToggle">🌙 Toggle Dark Mode</button>
+<div class="form-container" id="mainForm">
+  <h2>Donut SMP Spawner Request</h2>
+  <form id="spawnerForm">
+    <label>Discord Username:</label>
+    <input type="text" id="discord" required placeholder="Example#1234">
 
-    <h2>Spawner Request – Donut SMP</h2>
+    <label>Minecraft Username:</label>
+    <input type="text" id="minecraft" required placeholder="Your IGN">
 
-    <form id="spawnerForm">
-      <label>Discord Username:</label>
-      <input type="text" id="discord" required>
+    <label>Spawner Type:</label>
+    <select id="spawnerType" required>
+      <option>Pig</option>
+      <option>Cow</option>
+      <option>Zombie</option>
+      <option>Spider</option>
+      <option>Skeleton</option>
+      <option>Creeper</option>
+      <option>Iron Golem</option>
+    </select>
 
-      <label>Minecraft Username:</label>
-      <input type="text" id="minecraft" required>
+    <label>Amount:</label>
+    <input type="number" id="amount" min="1" value="1" required>
 
-      <label>Spawner Type:</label>
-      <select id="spawnerType" required>
-        <option value="Pig">Pig</option>
-        <option value="Cow">Cow</option>
-        <option value="Zombie">Zombie</option>
-        <option value="Spider">Spider</option>
-        <option value="Skeleton">Skeleton</option>
-        <option value="Creeper">Creeper</option>
-        <option value="Iron Golem">Iron Golem</option>
-      </select>
+    <label>Notes (optional):</label>
+    <textarea id="notes" placeholder="Any extra details?"></textarea>
 
-      <label>Amount:</label>
-      <input type="number" id="amount" min="1" value="1" required>
+    <div class="g-recaptcha" data-sitekey="6LfT9F8rAAAAABz6RqfJuEO0FR2soAxOnI6RzQqX"></div>
 
-      <label>Additional Notes (optional):</label>
-      <textarea id="notes" placeholder="e.g. Please deliver to my base..." rows="3"></textarea>
+    <button type="submit">Submit Request</button>
+    <div id="status"></div>
+  </form>
+</div>
 
-      <div class="recaptcha-container">
-        <div class="g-recaptcha" data-sitekey="6LfT9F8rAAAAABz6RqfJuEO0FR2soAxOnI6RzQqX"></div>
-      </div>
+<script>
+const form = document.getElementById('spawnerForm');
+const status = document.getElementById('status');
 
-      <small>⚠️ Spawner requests cannot be canceled once submitted. Please make sure all information is correct.</small>
+function generateOrderID() {
+  return 'DONUT-' + Math.floor(Math.random() * 100000);
+}
 
-      <button type="submit">Submit Request</button>
-    </form>
+function saveRequestToLocalStorage(data) {
+  const logs = JSON.parse(localStorage.getItem("donut_orders") || "[]");
+  logs.push(data);
+  localStorage.setItem("donut_orders", JSON.stringify(logs));
+}
 
-    <p id="status"></p>
-  </div>
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  <script>
-    const form = document.getElementById('spawnerForm');
-    const status = document.getElementById('status');
-    const darkToggle = document.getElementById('darkModeToggle');
+  const captchaResponse = grecaptcha.getResponse();
+  if (!captchaResponse) {
+    status.textContent = "❌ Please complete the reCAPTCHA.";
+    return;
+  }
 
-    darkToggle.addEventListener('click', () => {
-      document.body.dataset.theme = 
-        document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+  const discord = document.getElementById('discord').value;
+  const minecraft = document.getElementById('minecraft').value;
+  const type = document.getElementById('spawnerType').value;
+  const amount = parseInt(document.getElementById('amount').value);
+  const notes = document.getElementById('notes').value || "None";
+  const price = 750000 * amount;
+  const orderID = generateOrderID();
+
+  const confirmSend = confirm(`You're about to request:\n\nType: ${type}\nAmount: ${amount}\nTotal: ${price.toLocaleString()} coins\n\nDo you want to submit this order?`);
+  if (!confirmSend) return;
+
+  const orderData = {
+    orderID,
+    discord,
+    minecraft,
+    type,
+    amount,
+    price,
+    notes,
+    timestamp: new Date().toLocaleString()
+  };
+
+  const message = {
+    content: `📦 **Spawner Order Received!**\n**Order ID:** ${orderID}\n**Discord:** ${discord}\n**Minecraft:** ${minecraft}\n**Spawner Type:** ${type}\n**Amount:** ${amount}\n**Total Price:** ${price.toLocaleString()} coins\n**Notes:** ${notes}`
+  };
+
+  try {
+    await fetch("https://discord.com/api/webhooks/1383088862250926080/A9-D12iyhVI9jj5n-opJ_swakMMe59Nnq4wwRf77VDFZ0dKX_9mmCctfWMZKLjReqRXb", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(message)
     });
 
-    function generateOrderID() {
-      return 'DONUT-' + Math.floor(1000 + Math.random() * 9000);
-    }
+    saveRequestToLocalStorage(orderData);
+    status.textContent = "✅ Request sent successfully!";
+    form.reset();
+    grecaptcha.reset();
+  } catch (err) {
+    status.textContent = "❌ Failed to send request.";
+    console.error(err);
+  }
+});
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+// Admin Panel
+function showAdminPanel() {
+  const container = document.createElement("div");
+  container.innerHTML = `
+    <h2>🔒 Admin Panel</h2>
+    <button onclick="loadOrders()">🔄 Refresh Orders</button>
+    <button onclick="clearOrders()">🗑 Clear All Orders</button>
+    <div id="adminLogs" style="margin-top: 1em;"></div>
+  `;
+  document.body.innerHTML = '';
+  document.body.appendChild(container);
+  loadOrders();
+}
 
-      const captchaResponse = grecaptcha.getResponse();
-      if (!captchaResponse) {
-        status.textContent = "❌ Please complete the reCAPTCHA.";
-        return;
-      }
+function loadOrders() {
+  const logs = JSON.parse(localStorage.getItem("donut_orders") || "[]");
+  const logArea = document.getElementById("adminLogs");
+  logArea.innerHTML = '';
 
-      const discord = document.getElementById('discord').value;
-      const minecraft = document.getElementById('minecraft').value;
-      const type = document.getElementById('spawnerType').value;
-      const amount = parseInt(document.getElementById('amount').value);
-      const notes = document.getElementById('notes').value || "None";
-      const price = 750000 * amount;
-      const orderID = generateOrderID();
+  if (logs.length === 0) {
+    logArea.textContent = "No requests found.";
+    return;
+  }
 
-      const confirmSend = confirm(`You're about to request:\n\nType: ${type}\nAmount: ${amount}\nTotal: ${price.toLocaleString()} coins\n\nDo you want to submit this order?`);
-      if (!confirmSend) return;
+  logs.forEach((order, index) => {
+    const card = document.createElement("div");
+    card.style.cssText = "background:#222;color:#0f0;padding:1em;margin-bottom:1em;border-radius:6px;";
+    card.innerHTML = `
+      <strong>Order ID:</strong> ${order.orderID}<br>
+      <strong>Discord:</strong> ${order.discord}<br>
+      <strong>Minecraft:</strong> ${order.minecraft}<br>
+      <strong>Spawner:</strong> ${order.type}<br>
+      <strong>Amount:</strong> ${order.amount}<br>
+      <strong>Price:</strong> ${order.price.toLocaleString()} coins<br>
+      <strong>Notes:</strong> ${order.notes}<br>
+      <strong>Time:</strong> ${order.timestamp}<br>
+      <button onclick="deleteOrder(${index})" style="margin-top:0.5em;">❌ Delete Order</button>
+    `;
+    logArea.appendChild(card);
+  });
+}
 
-      const message = {
-        content: `📦 **Spawner Order Received!**
-**Order ID:** ${orderID}
-**Discord:** ${discord}
-**Minecraft:** ${minecraft}
-**Spawner Type:** ${type}
-**Amount:** ${amount}
-**Total Price:** ${price.toLocaleString()} coins
-**Notes:** ${notes}`
-      };
+function deleteOrder(index) {
+  const logs = JSON.parse(localStorage.getItem("donut_orders") || "[]");
+  logs.splice(index, 1);
+  localStorage.setItem("donut_orders", JSON.stringify(logs));
+  loadOrders();
+}
 
-      try {
-        await fetch("https://discord.com/api/webhooks/1383088862250926080/A9-D12iyhVI9jj5n-opJ_swakMMe59Nnq4wwRf77VDFZ0dKX_9mmCctfWMZKLjReqRXb", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(message)
-        });
+function clearOrders() {
+  const sure = confirm("Are you sure you want to delete ALL orders?");
+  if (!sure) return;
+  localStorage.removeItem("donut_orders");
+  loadOrders();
+}
+</script>
 
-        status.textContent = "✅ Request sent successfully!";
-        form.reset();
-        grecaptcha.reset();
-      } catch (err) {
-        status.textContent = "❌ Failed to send request.";
-        console.error(err);
-      }
-    });
-  </script>
 </body>
 </html>
