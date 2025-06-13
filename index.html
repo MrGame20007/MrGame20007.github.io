@@ -2,23 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Donut SMP Spawner Shop</title>
+  <title>Donut SMP Spawner Request</title>
   <style>
+    :root {
+      --bg-color: #f9f9f9;
+      --text-color: #000;
+      --card-color: #fff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1e1e1e;
+      --text-color: #f9f9f9;
+      --card-color: #2c2c2c;
+    }
+
     body {
       font-family: sans-serif;
-      max-width: 500px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      max-width: 600px;
       margin: auto;
       padding: 2rem;
-      background-color: #f9f9f9;
+    }
+
+    .container {
+      background-color: var(--card-color);
+      padding: 1.5rem;
       border-radius: 10px;
-      margin-top: 50px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    label, select, input {
+
+    label, select, input, textarea {
       display: block;
-      margin-top: 10px;
       width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 1rem;
     }
+
     button {
       margin-top: 20px;
       padding: 10px;
@@ -30,69 +51,121 @@
       font-size: 1rem;
       cursor: pointer;
     }
+
+    #darkModeToggle {
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    small {
+      font-size: 0.9rem;
+      color: gray;
+    }
+
+    .recaptcha-container {
+      margin-top: 1rem;
+    }
   </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body>
-  <h2>Donut SMP Spawner Request</h2>
-  <form id="spawnerForm">
-    <label>Discord Username:</label>
-    <input type="text" id="discord" required>
+<body data-theme="light">
 
-    <label>Minecraft Username:</label>
-    <input type="text" id="minecraft" required>
+  <div class="container">
+    <button id="darkModeToggle">🌙 Toggle Dark Mode</button>
 
-    <label>Spawner Type:</label>
-    <select id="spawnerType" required>
-      <option value="Pig">Pig</option>
-      <option value="Cow">Cow</option>
-      <option value="Zombie">Zombie</option>
-      <option value="Spider">Spider</option>
-      <option value="Skeleton">Skeleton</option>
-      <option value="Creeper">Creeper</option>
-      <option value="Iron Golem">Iron Golem</option>
-    </select>
+    <h2>Spawner Request – Donut SMP</h2>
 
-    <label>Amount:</label>
-    <input type="number" id="amount" min="1" value="1" required>
+    <form id="spawnerForm">
+      <label>Discord Username:</label>
+      <input type="text" id="discord" required>
 
-    <button type="submit">Submit Request</button>
-  </form>
+      <label>Minecraft Username:</label>
+      <input type="text" id="minecraft" required>
 
-  <p id="status" style="margin-top: 20px;"></p>
+      <label>Spawner Type:</label>
+      <select id="spawnerType" required>
+        <option value="Pig">Pig</option>
+        <option value="Cow">Cow</option>
+        <option value="Zombie">Zombie</option>
+        <option value="Spider">Spider</option>
+        <option value="Skeleton">Skeleton</option>
+        <option value="Creeper">Creeper</option>
+        <option value="Iron Golem">Iron Golem</option>
+      </select>
+
+      <label>Amount:</label>
+      <input type="number" id="amount" min="1" value="1" required>
+
+      <label>Additional Notes (optional):</label>
+      <textarea id="notes" placeholder="e.g. Please deliver to my base..." rows="3"></textarea>
+
+      <div class="recaptcha-container">
+        <div class="g-recaptcha" data-sitekey="6LfT9F8rAAAAABz6RqfJuEO0FR2soAxOnI6RzQqX"></div>
+      </div>
+
+      <small>⚠️ Spawner requests cannot be canceled once submitted. Please make sure all information is correct.</small>
+
+      <button type="submit">Submit Request</button>
+    </form>
+
+    <p id="status"></p>
+  </div>
 
   <script>
     const form = document.getElementById('spawnerForm');
     const status = document.getElementById('status');
+    const darkToggle = document.getElementById('darkModeToggle');
+
+    darkToggle.addEventListener('click', () => {
+      document.body.dataset.theme = 
+        document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+
+    function generateOrderID() {
+      return 'DONUT-' + Math.floor(1000 + Math.random() * 9000);
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      const captchaResponse = grecaptcha.getResponse();
+      if (!captchaResponse) {
+        status.textContent = "❌ Please complete the reCAPTCHA.";
+        return;
+      }
 
       const discord = document.getElementById('discord').value;
       const minecraft = document.getElementById('minecraft').value;
       const type = document.getElementById('spawnerType').value;
       const amount = parseInt(document.getElementById('amount').value);
+      const notes = document.getElementById('notes').value || "None";
       const price = 750000 * amount;
+      const orderID = generateOrderID();
+
+      const confirmSend = confirm(`You're about to request:\n\nType: ${type}\nAmount: ${amount}\nTotal: ${price.toLocaleString()} coins\n\nDo you want to submit this order?`);
+      if (!confirmSend) return;
 
       const message = {
         content: `📦 **Spawner Order Received!**
+**Order ID:** ${orderID}
 **Discord:** ${discord}
 **Minecraft:** ${minecraft}
 **Spawner Type:** ${type}
 **Amount:** ${amount}
-**Total Price:** ${price.toLocaleString()} coins`
+**Total Price:** ${price.toLocaleString()} coins
+**Notes:** ${notes}`
       };
 
       try {
         await fetch("https://discord.com/api/webhooks/1383088862250926080/A9-D12iyhVI9jj5n-opJ_swakMMe59Nnq4wwRf77VDFZ0dKX_9mmCctfWMZKLjReqRXb", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(message)
         });
 
         status.textContent = "✅ Request sent successfully!";
         form.reset();
+        grecaptcha.reset();
       } catch (err) {
         status.textContent = "❌ Failed to send request.";
         console.error(err);
