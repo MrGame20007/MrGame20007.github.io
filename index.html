@@ -146,23 +146,16 @@ form.addEventListener('submit', async (e) => {
 });
 
 // Admin Panel
-function showAdminPanel() {
-  const password = prompt("Enter the admin password:");
-  if (password !== "donutadmin123") {
-    alert("Incorrect password.");
-    return;
+async function showAdminPanel() {
+  const res = await fetch("/password");
+  const data = await res.json();
+  const userInput = prompt("Enter admin password:");
+  if (userInput === data.password) {
+    alert("✅ Welcome, admin!");
+    // load admin panel UI
+  } else {
+    alert("❌ Incorrect password.");
   }
-
-  const container = document.createElement("div");
-  container.innerHTML = `
-    <h2>🔒 Admin Panel</h2>
-    <button onclick="loadOrders()">🔄 Refresh Orders</button>
-    <button onclick="clearOrders()">🗑 Clear All Orders</button>
-    <div id="adminLogs" style="margin-top: 1em;"></div>
-  `;
-  document.body.innerHTML = '';
-  document.body.appendChild(container);
-  loadOrders();
 }
 
 function loadOrders() {
