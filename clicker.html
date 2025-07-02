@@ -5,6 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aura Clicker</title>
   <style>
+
+    .delete-save {
+      padding: 15px 30px;
+      font-size: 20px;
+      cursor: pointer;
+      background-color: #f44336; /* Red color */
+      border: none;
+      border-radius: 10px;
+      color: white;
+      margin-bottom: 20px;
+      transition: background-color 0.3s;
+    }
+
+    .delete-save:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+    }
+
     body {
       margin: 0;
       height: 100vh;
@@ -92,6 +109,8 @@
   <div id="gain-info">Aura per click: 1</div>
   <div id="auto-click-rate">Auto Click Rate: 0</div>
 
+  <button class="delete-save" onclick="deleteSaveData()">Delete Save Data</button>
+
   <div id="powerups"></div>
 
   <script>
@@ -121,6 +140,27 @@
       localStorage.setItem('auraClickerSave', JSON.stringify(data));
     }
 
+    function deleteSaveData() {
+      if (confirm("Are you sure you want to delete your save data? This action cannot be undone.")) {
+        localStorage.removeItem('auraClickerSave'); // Removes saved data from localStorage
+        alert("Your save data has been deleted.");
+        // Reset game values
+        aura = 0;
+        auraPerClick = 1;
+        autoClickRate = 0;
+        powerups = [
+        { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
+        { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
+        { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
+        { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
+        { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
+        { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 }
+        ];
+        updateDisplay();
+  }
+}
+
+
     function loadGame() {
       const saved = localStorage.getItem('auraClickerSave');
       if (saved) {
@@ -133,6 +173,19 @@
         }
       }
     }
+
+    auraPerClick = 1;
+    autoClickRate = 0;
+    powerups = [
+      { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
+      { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
+      { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
+      { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
+      { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
+      { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 }
+    ];
+
+
 
     function updateDisplay() {
       document.getElementById('aura').textContent = 'Aura: ' + Math.floor(aura);
