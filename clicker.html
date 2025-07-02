@@ -40,6 +40,12 @@
       color: #ccc;
     }
 
+    #auto-click-rate {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
     #powerups {
       position: absolute;
       bottom: 20px;
@@ -84,23 +90,32 @@
   <button onclick="increaseAura()">Click Me</button>
   <div id="aura">Aura: 0</div>
   <div id="gain-info">Aura per click: 1</div>
+  <div id="auto-click-rate">Auto Click Rate: 0</div>
 
   <div id="powerups"></div>
 
   <script>
     let aura = 0;
     let auraPerClick = 1;
+    let autoClickRate = 0;  // Auto-clicker rate per second
+    let autoClickerInterval;
 
     let powerups = [
       { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
       { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
-      { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 }
+      { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
+      { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
+      { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
+      { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 },
+      { name: 'Auto-Clicker +100 Clicks Per Second', baseCost: 10000, cost: 10000, multiplier: 100, bought: 0 },
+      { name: 'Auto-Clicker +1000 Clicks Per Second', baseCost: 100000, cost: 100000, multiplier: 1000, bought: 0 }
     ];
 
     function saveGame() {
       const data = {
         aura,
         auraPerClick,
+        autoClickRate,
         powerups
       };
       localStorage.setItem('auraClickerSave', JSON.stringify(data));
@@ -112,6 +127,7 @@
         const data = JSON.parse(saved);
         aura = data.aura || 0;
         auraPerClick = data.auraPerClick || 1;
+        autoClickRate = data.autoClickRate || 0;
         if (data.powerups) {
           powerups = data.powerups;
         }
@@ -121,6 +137,7 @@
     function updateDisplay() {
       document.getElementById('aura').textContent = 'Aura: ' + Math.floor(aura);
       document.getElementById('gain-info').textContent = 'Aura per click: ' + auraPerClick;
+      document.getElementById('auto-click-rate').textContent = 'Auto Click Rate: ' + autoClickRate;
 
       const container = document.getElementById('powerups');
       container.innerHTML = '';
@@ -148,7 +165,14 @@
       if (aura >= p.cost) {
         aura -= p.cost;
         p.bought += 1;
-        auraPerClick += p.multiplier;
+        if (index < 3) {  // Aura Per Click Power-ups
+          auraPerClick += p.multiplier;
+        } else {  // Auto-Clicker Power-ups
+          autoClickRate += p.multiplier;
+          if (autoClickRate > 0 && !autoClickerInterval) {
+            startAutoClicker();
+          }
+        }
 
         // Increase cost by 50% each time
         p.cost = Math.floor(p.baseCost * Math.pow(1.5, p.bought));
@@ -157,6 +181,14 @@
         element.classList.add('flash-red');
         setTimeout(() => element.classList.remove('flash-red'), 300);
       }
+    }
+
+    function startAutoClicker() {
+      if (autoClickerInterval) clearInterval(autoClickerInterval);
+      autoClickerInterval = setInterval(() => {
+        aura += autoClickRate;
+        updateDisplay();
+      }, 1000);
     }
 
     // Load game state and display
@@ -169,3 +201,33 @@
 
 </body>
 </html>
+
+<!-- This is a simple clicker game where you can earn "Aura" by clicking a button. -->
+<!-- You can buy power-ups to increase your Aura per click or to add auto-clickers that
+    automatically generate Aura over time. -->
+<!-- The game state is saved in the browser's local storage, allowing you to continue where you left off. -->
+<!-- The power-ups have increasing costs, and you can buy multiple of each type. -->
+<!-- The game also features a simple UI with buttons and displays for Aura, Aura per click, and auto-click rate. -->
+<!-- The auto-clicker starts when you buy your first auto-clicker power-up and runs every
+    second to add Aura based on the auto-click rate. -->
+<!-- The game is designed to be simple and easy to understand, with a focus on incremental progression. -->
+<!-- You can modify the power-ups, costs, and other parameters to customize the game to your
+    liking. -->
+<!-- The game is built using HTML, CSS, and JavaScript, making it easy to run in any modern web browser. -->
+<!-- You can also expand the game by adding more features, such as achievements, leaderboards,
+    or additional power-ups. -->                                                                            
+<!-- The game is responsive and should work well on both desktop and mobile devices. -->
+<!-- You can further enhance the game by adding animations, sound effects, or more complex mechanics.
+    The possibilities are endless! -->
+<!-- Enjoy playing and developing your own clicker game! -->
+<!-- Feel free to share your modifications or improvements with others. -->
+    
+<!-- This code is a basic template for a clicker game and can be used as a starting point for your own projects. -->
+<!-- You can customize the styles, add more features, or integrate it into a larger web application
+    as needed. -->
+<!-- The game is designed to be simple and straightforward, making it accessible for beginners
+    while still providing enough depth for more experienced developers to enjoy. -->
+<!-- The game can be easily extended with additional features, such as achievements, leaderboards,
+    or more complex mechanics. -->
+<!-- You can also integrate it with a backend server to store user data, track progress, or implement
+    multiplayer features. -->
