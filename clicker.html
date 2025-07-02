@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aura Clicker</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      flex-direction: column;
+      position: relative;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 20px;
+      cursor: pointer;
+      background-color: #4caf50;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    #aura {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #gain-info {
+      font-size: 16px;
+      margin-bottom: 40px;
+      color: #ccc;
+    }
+
+    #powerups {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .powerup {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border: 1px solid #666;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .powerup:hover {
+      background-color: #555;
+    }
+
+    .disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .flash-red {
+      animation: flashRed 0.3s ease;
+    }
+
+    @keyframes flashRed {
+      0% { background-color: #f00; }
+      100% { background-color: #333; }
+    }
+  </style>
+</head>
+<body>
+
+  <button onclick="increaseAura()">Click Me</button>
+  <div id="aura">Aura: 0</div>
+  <div id="gain-info">Aura per click: 1</div>
+
+  <div id="powerups"></div>
+
+  <script>
+    let aura = 0;
+    let auraPerClick = 1;
+
+    let powerups = [
+      { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
+      { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
+      { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 }
+    ];
+
+    function saveGame() {
+      const data = {
+        aura,
+        auraPerClick,
+        powerups
+      };
+      localStorage.setItem('auraClickerSave', JSON.stringify(data));
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem('auraClickerSave');
+      if (saved) {
+        const data = JSON.parse(saved);
+        aura = data.aura || 0;
+        auraPerClick = data.auraPerClick || 1;
+        if (data.powerups) {
+          powerups = data.powerups;
+        }
+      }
+    }
+
+    function updateDisplay() {
+      document.getElementById('aura').textContent = 'Aura: ' + Math.floor(aura);
+      document.getElementById('gain-info').textContent = 'Aura per click: ' + auraPerClick;
+
+      const container = document.getElementById('powerups');
+      container.innerHTML = '';
+
+      powerups.forEach((p, index) => {
+        const el = document.createElement('div');
+        el.className = 'powerup';
+        if (aura < p.cost) el.classList.add('disabled');
+
+        el.innerHTML = `${p.name} (Cost: ${Math.floor(p.cost)})<br>Bought: ${p.bought}`;
+        el.onclick = () => buyPowerup(index, el);
+        container.appendChild(el);
+      });
+
+      saveGame();
+    }
+
+    function increaseAura() {
+      aura += auraPerClick;
+      updateDisplay();
+    }
+
+    function buyPowerup(index, element) {
+      const p = powerups[index];
+      if (aura >= p.cost) {
+        aura -= p.cost;
+        p.bought += 1;
+        auraPerClick += p.multiplier;
+
+        // Increase cost by 50% each time
+        p.cost = Math.floor(p.baseCost * Math.pow(1.5, p.bought));
+        updateDisplay();
+      } else {
+        element.classList.add('flash-red');
+        setTimeout(() => element.classList.remove('flash-red'), 300);
+      }
+    }
+
+    // Load game state and display
+    loadGame();
+    updateDisplay();
+
+    // Auto-save every 5 seconds
+    setInterval(saveGame, 5000);
+  </script>
+
+</body>
+</html>

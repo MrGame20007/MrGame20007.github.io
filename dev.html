@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Protected</title>
+  <script>
+    function checkPassword() {
+      const input = document.getElementById("password").value;
+      const correctPassword = "secret123"; // Change this to your actual password
+
+      if (input === correctPassword) {
+        window.location.href = "jurre.html";
+      } else {
+        alert("Incorrect password. Try again.");
+      }
+    }
+  </script>
+</head>
+<body style="font-family: Arial; text-align: center; padding-top: 50px;">
+  <h2>Enter Password</h2>
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="checkPassword()">Submit</button>
+</body>
+</html>
