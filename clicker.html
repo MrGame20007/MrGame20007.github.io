@@ -111,6 +111,13 @@
 
   <button class="delete-save" onclick="deleteSaveData()">Delete Save Data</button>
 
+  <div style="margin-bottom: 20px;">
+    <input type="text" id="gift-code-input" placeholder="Enter Gift Code" style="padding: 10px; font-size: 16px;">
+    <button onclick="redeemGiftCode()" style="padding: 10px 20px; font-size: 16px;">Redeem</button>
+    <div id="gift-code-message" style="color: #ccc; margin-top: 10px;"></div>
+  </div>
+
+
   <div id="powerups"></div>
 
   <script>
@@ -123,44 +130,95 @@
       { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
       { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
       { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
+      { name: 'Aura Per Click +50', baseCost: 1000, cost: 1000, multiplier: 50, bought: 0 },
+      { name: 'Aura Per Click +100', baseCost: 5000, cost: 5000, multiplier: 100, bought: 0 },
+      { name: 'Aura Per Click +500', baseCost: 20000, cost: 20000, multiplier: 500, bought: 0 },
+      { name: 'Aura Per Click +1000', baseCost: 50000, cost: 50000, multiplier: 1000, bought: 0 },
       { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
       { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
       { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 },
+      { name: 'Auto-Clicker +50 Clicks Per Second', baseCost: 5000, cost: 5000, multiplier: 50, bought: 0 },
       { name: 'Auto-Clicker +100 Clicks Per Second', baseCost: 10000, cost: 10000, multiplier: 100, bought: 0 },
+      { name: 'Auto-Clicker +500 Clicks Per Second', baseCost: 50000, cost: 50000, multiplier: 500, bought: 0 },
       { name: 'Auto-Clicker +1000 Clicks Per Second', baseCost: 100000, cost: 100000, multiplier: 1000, bought: 0 }
     ];
 
-    function saveGame() {
-      const data = {
-        aura,
-        auraPerClick,
-        autoClickRate,
-        powerups
-      };
-      localStorage.setItem('auraClickerSave', JSON.stringify(data));
+    // Example gift codes and rewards
+    const giftCodes = {
+      "WELCOME1000": { aura: 1000 },
+      "BOOST100": { auraPerClick: 100 },
+      "AUTO5": { autoClickRate: 5 },
+      "STARTER": { aura: 500, auraPerClick: 1, autoClickRate: 1 },
+      "FRIENDBOOST": { aura: 2000, auraPerClick: 5, autoClickRate: 2 },
+      "AURAFARMING": { aura: 5000, auraPerClick: 10, autoClickRate: 5 },
+      "MOONMANGO": { aura: 10000, auraPerClick: 75, autoClickRate: 250 },
+      "LIAM": { aura: 69, auraPerClick: 69, autoClickRate: 69 },
+      "GODMODE": { aura: 99999, auraPerClick: 999, autoClickRate: 999 },
+      "DEVBOOST": { aura: 75000, auraPerClick: 10000, autoClickRate: 5000 },
+      "DETERMINATION": { aura: 50000, auraPerClick: 2500, autoClickRate: 500 },
+      "NYEHHEHHEH": { aura: 100000, auraPerClick: 10000, autoClickRate: 10000 },
+      "POWERUP": { aura: 2000, auraPerClick: 5, autoClickRate: 10 },
+      "CLICKBOOST": { auraPerClick: 10 },
+      "AUTOMATIC": { autoClickRate: 20 },
+      "AURAGAIN": { aura: 5000, auraPerClick: 10, autoClickRate: 50 }
+      
+    };
+
+    let redeemedCodes = []; // To keep track of redeemed codes
+
+    function formatNumber(num) {
+      return num.toLocaleString();
     }
+
+
+    function saveGame() {
+      const data = { aura, auraPerClick, autoClickRate, powerups, redeemedCodes };
+      localStorage.setItem('auraClickerSave', JSON.stringify(data));
+
+      const notice = document.getElementById('save-notice');
+      notice.textContent = 'Game saved...';
+      setTimeout(() => notice.textContent = '', 1000);
+    }
+
 
     function deleteSaveData() {
       if (confirm("Are you sure you want to delete your save data? This action cannot be undone.")) {
-        localStorage.removeItem('auraClickerSave'); // Removes saved data from localStorage
-        alert("Your save data has been deleted.");
-        // Reset game values
-        aura = 0;
-        auraPerClick = 1;
-        autoClickRate = 0;
-        powerups = [
-        { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
-        { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
-        { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
-        { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
-        { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
-        { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 },
-        { name: 'Auto-Clicker +100 Clicks Per Second', baseCost: 10000, cost: 10000, multiplier: 100, bought: 0 },
-        { name: 'Auto-Clicker +1000 Clicks Per Second', baseCost: 100000, cost: 100000, multiplier: 1000, bought: 0 }
-        ];
-        updateDisplay();
-  }
-}
+        if (confirm("Are you REALLY SURE you want to delete your save data?")) {
+          localStorage.removeItem('auraClickerSave'); // Remove from storage
+
+          // ⚠️ Reset game variables BEFORE reloading:
+          aura = 0;
+          auraPerClick = 1;
+          autoClickRate = 0;
+          redeemedCodes = []; // ✅ Reset redeemed codes
+          
+          powerups = [
+            { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
+            { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
+            { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
+            { name: 'Aura Per Click +50', baseCost: 1000, cost: 1000, multiplier: 50, bought: 0 },
+            { name: 'Aura Per Click +100', baseCost: 5000, cost: 5000, multiplier: 100, bought: 0 },
+            { name: 'Aura Per Click +500', baseCost: 20000, cost: 20000, multiplier: 500, bought: 0 },
+            { name: 'Aura Per Click +1000', baseCost: 50000, cost: 50000, multiplier: 1000, bought: 0 },
+            { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
+            { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
+            { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 },
+            { name: 'Auto-Clicker +50 Clicks Per Second', baseCost: 5000, cost: 5000, multiplier: 50, bought: 0 },
+            { name: 'Auto-Clicker +100 Clicks Per Second', baseCost: 10000, cost: 10000, multiplier: 100, bought: 0 },
+            { name: 'Auto-Clicker +500 Clicks Per Second', baseCost: 50000, cost: 50000, multiplier: 500, bought: 0 },
+            { name: 'Auto-Clicker +1000 Clicks Per Second', baseCost: 100000, cost: 100000, multiplier: 1000, bought: 0 }
+          ];
+
+          updateDisplay();
+          alert("Your save data has been deleted.");
+        } else {
+          alert("Your save data has NOT been deleted.");
+        }
+      } else {
+        alert("Your save data has NOT been deleted.");
+      }
+    }
+
 
 
     function loadGame() {
@@ -170,31 +228,18 @@
         aura = data.aura || 0;
         auraPerClick = data.auraPerClick || 1;
         autoClickRate = data.autoClickRate || 0;
-        if (data.powerups) {
-          powerups = data.powerups;
-        }
+        if (data.powerups) powerups = data.powerups;
+        if (data.redeemedCodes) redeemedCodes = data.redeemedCodes;
       }
     }
 
     auraPerClick = 1;
     autoClickRate = 0;
-    powerups = [
-      { name: 'Aura Per Click +1', baseCost: 50, cost: 50, multiplier: 1, bought: 0 },
-      { name: 'Aura Per Click +5', baseCost: 150, cost: 150, multiplier: 5, bought: 0 },
-      { name: 'Aura Per Click +10', baseCost: 500, cost: 500, multiplier: 10, bought: 0 },
-      { name: 'Auto-Clicker +1 Click Per Second', baseCost: 200, cost: 200, multiplier: 1, bought: 0 },
-      { name: 'Auto-Clicker +5 Clicks Per Second', baseCost: 500, cost: 500, multiplier: 5, bought: 0 },
-      { name: 'Auto-Clicker +10 Clicks Per Second', baseCost: 1000, cost: 1000, multiplier: 10, bought: 0 },
-      { name: 'Auto-Clicker +100 Clicks Per Second', baseCost: 10000, cost: 10000, multiplier: 100, bought: 0 },
-      { name: 'Auto-Clicker +1000 Clicks Per Second', baseCost: 100000, cost: 100000, multiplier: 1000, bought: 0 }
-    ];
-
-
 
     function updateDisplay() {
-      document.getElementById('aura').textContent = 'Aura: ' + Math.floor(aura);
-      document.getElementById('gain-info').textContent = 'Aura per click: ' + auraPerClick;
-      document.getElementById('auto-click-rate').textContent = 'Auto Click Rate: ' + autoClickRate;
+      document.getElementById('aura').textContent = 'Aura: ' + formatNumber(Math.floor(aura));
+      document.getElementById('gain-info').textContent = 'Aura per click: ' + formatNumber(auraPerClick);
+      document.getElementById('auto-click-rate').textContent = 'Auto Click Rate: ' + formatNumber(autoClickRate);
 
       const container = document.getElementById('powerups');
       container.innerHTML = '';
@@ -204,7 +249,7 @@
         el.className = 'powerup';
         if (aura < p.cost) el.classList.add('disabled');
 
-        el.innerHTML = `${p.name} (Cost: ${Math.floor(p.cost)})<br>Bought: ${p.bought}`;
+        el.innerHTML = `${p.name} (Cost: ${formatNumber(Math.floor(p.cost))})<br>Bought: ${p.bought}`;
         el.onclick = () => buyPowerup(index, el);
         container.appendChild(el);
       });
@@ -226,9 +271,10 @@
           auraPerClick += p.multiplier;
         } else {  // Auto-Clicker Power-ups
           autoClickRate += p.multiplier;
-          if (autoClickRate > 0 && !autoClickerInterval) {
-            startAutoClicker();
+          if (autoClickRate > 0) {
+            startAutoClicker(); // Don't check if already running — just restart
           }
+
         }
 
         // Increase cost by 50% each time
@@ -240,13 +286,44 @@
       }
     }
 
+    function redeemGiftCode() {
+      const input = document.getElementById('gift-code-input');
+      const code = input.value.trim().toUpperCase();
+      const message = document.getElementById('gift-code-message');
+
+      if (redeemedCodes.includes(code)) {
+        message.textContent = "❌ You’ve already redeemed this code.";
+        return;
+      }
+
+      if (!giftCodes[code]) {
+        message.textContent = "❌ Invalid gift code.";
+        return;
+      }
+
+      // Apply rewards
+      const reward = giftCodes[code];
+      if (reward.aura) aura += reward.aura;
+      if (reward.auraPerClick) auraPerClick += reward.auraPerClick;
+      if (reward.autoClickRate) {
+        autoClickRate += reward.autoClickRate;
+        if (autoClickRate > 0 && !autoClickerInterval) startAutoClicker();
+      }
+
+      redeemedCodes.push(code);
+      message.textContent = "✅ Code redeemed successfully!";
+      input.value = '';
+      updateDisplay();
+    }
+
     function startAutoClicker() {
       if (autoClickerInterval) clearInterval(autoClickerInterval);
-      autoClickerInterval = setInterval(() => {
+        autoClickerInterval = setInterval(() => {
         aura += autoClickRate;
         updateDisplay();
       }, 1000);
-    }
+}
+
 
     // Load game state and display
     loadGame();
@@ -256,35 +333,7 @@
     setInterval(saveGame, 5000);
   </script>
 
+  <div id="save-notice" style="position:absolute;bottom:10px;left:10px;font-size:12px;color:#ccc;"></div>
 </body>
 </html>
 
-<!-- This is a simple clicker game where you can earn "Aura" by clicking a button. -->
-<!-- You can buy power-ups to increase your Aura per click or to add auto-clickers that
-    automatically generate Aura over time. -->
-<!-- The game state is saved in the browser's local storage, allowing you to continue where you left off. -->
-<!-- The power-ups have increasing costs, and you can buy multiple of each type. -->
-<!-- The game also features a simple UI with buttons and displays for Aura, Aura per click, and auto-click rate. -->
-<!-- The auto-clicker starts when you buy your first auto-clicker power-up and runs every
-    second to add Aura based on the auto-click rate. -->
-<!-- The game is designed to be simple and easy to understand, with a focus on incremental progression. -->
-<!-- You can modify the power-ups, costs, and other parameters to customize the game to your
-    liking. -->
-<!-- The game is built using HTML, CSS, and JavaScript, making it easy to run in any modern web browser. -->
-<!-- You can also expand the game by adding more features, such as achievements, leaderboards,
-    or additional power-ups. -->                                                                            
-<!-- The game is responsive and should work well on both desktop and mobile devices. -->
-<!-- You can further enhance the game by adding animations, sound effects, or more complex mechanics.
-    The possibilities are endless! -->
-<!-- Enjoy playing and developing your own clicker game! -->
-<!-- Feel free to share your modifications or improvements with others. -->
-    
-<!-- This code is a basic template for a clicker game and can be used as a starting point for your own projects. -->
-<!-- You can customize the styles, add more features, or integrate it into a larger web application
-    as needed. -->
-<!-- The game is designed to be simple and straightforward, making it accessible for beginners
-    while still providing enough depth for more experienced developers to enjoy. -->
-<!-- The game can be easily extended with additional features, such as achievements, leaderboards,
-    or more complex mechanics. -->
-<!-- You can also integrate it with a backend server to store user data, track progress, or implement
-    multiplayer features. -->
