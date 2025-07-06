@@ -100,6 +100,108 @@
       0% { background-color: #f00; }
       100% { background-color: #333; }
     }
+
+    @keyframes clickPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: clickPulse 0.1s ease;
+    }
+
+    @keyframes auraFlash {
+      0% { color: #fff; transform: scale(1); }
+      50% { color: #4caf50; transform: scale(1.2); }
+      100% { color: #fff; transform: scale(1); }
+    }
+
+    #aura.flash {
+      animation: auraFlash 0.1s ease;
+    }
+
+    @keyframes giftFlash {
+      0% { color: #ccc; }
+      50% { color: #00ff99; }
+      100% { color: #ccc; }
+    }
+
+    @keyframes giftError {
+      0% { color: #ccc; }
+      50% { color: #ff4444; }
+      100% { color: #ccc; }
+    }
+    .flash-success {
+      animation: giftFlash 1s ease;
+    }
+    .flash-error {
+      animation: giftError 1s ease;
+    }
+
+    @keyframes powerupClick {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .powerup.pulse {
+      animation: powerupClick 0.2s ease;
+    }
+
+    .flash-red {
+      animation: flashRed 0.3s ease;
+    }
+
+    @keyframes flashRed {
+      0% { background-color: #440000; }
+      100% { background-color: #222; }
+    }
+
+    @keyframes auraMilestone {
+      0% { color: white; transform: scale(1); }
+      50% { color: #b266ff; transform: scale(2); }
+      100% { color: white; transform: scale(1); }
+    }
+
+    #aura.milestone {
+      animation: auraMilestone 5s ease;
+    }
+
+    .milestone-popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #9b59b6;
+      color: white;
+      padding: 12px 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      z-index: 1000;
+      animation: fadeInOut 4s ease;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    }
+
+    #client-note {
+      position: fixed;
+      bottom: 10px;
+      left: 10px; /* changed from right: 10px */
+      background: rgba(0, 0, 0, 0.35);
+      color: rgb(206, 227, 255);
+      padding: 12.5px 12.5px;
+      font-size: 13.5px;
+      border-radius: 8px;
+      font-family: sans-serif;
+      z-index: 1000;
+      max-width: 300px;
+    }
   </style>
 </head>
 <body>
@@ -119,6 +221,10 @@
 
 
   <div id="powerups"></div>
+
+  <div id="client-note">Note: This game is client-side, this means you can edit your save data with developer tools. Luckily there is no scoreboard so if you cheat it doesn't affect other people.</div>
+
+
 
   <script>
     let aura = 0;
@@ -165,6 +271,33 @@
     };
 
     let redeemedCodes = []; // To keep track of redeemed codes
+
+    function triggerMilestone(auraValue) {
+      const counter = document.getElementById('aura');
+      
+      // Make it purple and large for 5 seconds
+      counter.style.transition = 'transform 0.3s ease, color 0.3s ease';
+      counter.style.color = 'purple';
+      counter.style.transform = 'scale(2)';
+
+      setTimeout(() => {
+        counter.style.color = '';
+        counter.style.transform = '';
+      }, 5000);
+
+      // Optional: Display milestone message
+      showMilestonePopup(`🎉 You reached ${auraValue.toLocaleString()} aura!`);
+    }
+
+    function showMilestonePopup(text) {
+      const popup = document.createElement('div');
+      popup.className = 'milestone-popup';
+      popup.textContent = text;
+      document.body.appendChild(popup);
+
+      setTimeout(() => popup.remove(), 4000);
+    }
+
 
     function formatNumber(num) {
       return num.toLocaleString();
@@ -237,47 +370,68 @@
     autoClickRate = 0;
 
     function updateDisplay() {
-      document.getElementById('aura').textContent = 'Aura: ' + formatNumber(Math.floor(aura));
+      const auraEl = document.getElementById('aura');
+      auraEl.textContent = 'Aura: ' + formatNumber(Math.floor(aura));
+      auraEl.classList.add('flash');
+      setTimeout(() => auraEl.classList.remove('flash'), 300);
+
       document.getElementById('gain-info').textContent = 'Aura per click: ' + formatNumber(auraPerClick);
       document.getElementById('auto-click-rate').textContent = 'Auto Click Rate: ' + formatNumber(autoClickRate);
 
       const container = document.getElementById('powerups');
       container.innerHTML = '';
-
       powerups.forEach((p, index) => {
         const el = document.createElement('div');
         el.className = 'powerup';
         if (aura < p.cost) el.classList.add('disabled');
-
-        el.innerHTML = `${p.name} (Cost: ${formatNumber(Math.floor(p.cost))})<br>Bought: ${p.bought}`;
-        el.onclick = () => buyPowerup(index, el);
+        el.textContent = `${p.name} (Cost: ${formatNumber(p.cost)})`;
+        el.onclick = () => {
+          buyPowerup(index, el);
+        };
         container.appendChild(el);
       });
 
-      saveGame();
+      milestones.forEach(m => {
+        if (!m.triggered && aura >= m.aura) {
+          m.triggered = true;
+          m.action();
+        }
+      });
     }
+
 
     function increaseAura() {
       aura += auraPerClick;
       updateDisplay();
+      saveGame();
+
+      // Animate the button
+      const button = document.querySelector("button[onclick='increaseAura()']");
+      button.classList.add('pulse');
+      setTimeout(() => button.classList.remove('pulse'), 200);
     }
+
 
     function buyPowerup(index, element) {
       const p = powerups[index];
+
+      // Always animate the button on click
+      element.classList.add('pulse');
+      setTimeout(() => element.classList.remove('pulse'), 200);
+
       if (aura >= p.cost) {
         aura -= p.cost;
         p.bought += 1;
-        if (index < 3) {  // Aura Per Click Power-ups
+
+        if (index < 3) {
           auraPerClick += p.multiplier;
-        } else {  // Auto-Clicker Power-ups
+        } else {
           autoClickRate += p.multiplier;
           if (autoClickRate > 0) {
-            startAutoClicker(); // Don't check if already running — just restart
+            startAutoClicker();
           }
-
         }
 
-        // Increase cost by 50% each time
         p.cost = Math.floor(p.baseCost * Math.pow(1.5, p.bought));
         updateDisplay();
       } else {
@@ -286,35 +440,37 @@
       }
     }
 
+
     function redeemGiftCode() {
       const input = document.getElementById('gift-code-input');
-      const code = input.value.trim().toUpperCase();
       const message = document.getElementById('gift-code-message');
+      const code = input.value.trim().toUpperCase();
 
       if (redeemedCodes.includes(code)) {
-        message.textContent = "❌ You’ve already redeemed this code.";
+        message.textContent = 'Code already redeemed!';
+        message.className = 'flash-error';
         return;
       }
 
-      if (!giftCodes[code]) {
-        message.textContent = "❌ Invalid gift code.";
-        return;
-      }
-
-      // Apply rewards
       const reward = giftCodes[code];
-      if (reward.aura) aura += reward.aura;
-      if (reward.auraPerClick) auraPerClick += reward.auraPerClick;
-      if (reward.autoClickRate) {
-        autoClickRate += reward.autoClickRate;
-        if (autoClickRate > 0 && !autoClickerInterval) startAutoClicker();
-      }
+      if (reward) {
+        if (reward.aura) aura += reward.aura;
+        if (reward.auraPerClick) auraPerClick += reward.auraPerClick;
+        if (reward.autoClickRate) autoClickRate += reward.autoClickRate;
 
-      redeemedCodes.push(code);
-      message.textContent = "✅ Code redeemed successfully!";
-      input.value = '';
-      updateDisplay();
+        redeemedCodes.push(code);
+        input.value = '';
+        updateDisplay();
+        saveGame();
+
+        message.textContent = 'Code redeemed successfully!';
+        message.className = 'flash-success';
+      } else {
+        message.textContent = 'Invalid code!';
+        message.className = 'flash-error';
+      }
     }
+
 
     function startAutoClicker() {
       if (autoClickerInterval) clearInterval(autoClickerInterval);
