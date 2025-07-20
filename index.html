@@ -1,72 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <title>My Web Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Download My Game</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #1a002c, #710094, #1a002c);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .download-btn {
+      display: inline-block;
+      padding: 12px 25px;
+      margin-top: 20px;
+      font-size: 18px;
+      background-color: #2b0036;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background-color: #ba00cb;
+    }
+  </style>
 </head>
-
 <body>
-    <a href="clicker.html" target="_blank">Visit Clicker Page</a>
-    <br>
-    <br>
-    <hr>
-
-    <h2>Changelogs : </h2>
-    <pre>
-
-    Version 2.0.0 - 3-7-2025
-
-        - Reworked the entire game!
-        - Changing the rendering engine to a GPU-based one!
-        - Added Gift Codes!
-        - Redesigned the UI
-        - Added new features
-        - Improved performance
-        - Fixed numerous bugs in the code
-
-        Developer Note :
-          Yeah, you read that right. I Spent 1,5 days rewriting the entire game from scratch!
-
-    Version 1.0.0 - 2-7-2025
-
-        - Initial release
-        - Added new features
-        - Slight performance improvements
-        - Fixed bugs
-
-        Developer Note :
-          Finally, the game is out of ALPHA and BETA! This is the first STABLE release of the game!
-
-    Beta Version 0.1.0 - 1-7-2025
-
-        - Second beta release
-        - Added Power-ups completely!
-        - Fixed the low performance issue on high-end devices
-
-        Developer Note :
-          Why did this game run so slow on high-end devices! Maybe its because i was still using a old rendering engine from 1998?
-
-    Beta Version 0.0.1 - 30-6-2025
-
-        - Initial beta release
-        - Basic functionality for power-ups implemented
-        - Known issues: Low Performance on (for some weird reason) High-End Devices 
-
-        Developer Note :
-          Why does this game run so slow on high-end devices?
-
-    Alpha Version 0.0.1 - 30-6-2025
-
-        - Initial alpha release
-        - Basic functionality Added
-        - Known issues: Low Performance on High-End Devices, Inconsistent behavior on different screen resolutions, Crashes on certain devices,
-            Memory leaks, UI glitches, "Click Me" button not working on some browsers, Power-ups not functioning as intended, Game state not saving properly,
-            Sound effects not playing, High CPU usage, Slow loading times, Incomplete features, Missing translations for non-English languages,
-            Unresponsive controls on mobile devices, Visual artifacts in the game graphics, Inaccurate click counting, Game freezing on certain actions,
-            Difficulty balancing issues, No support for older browsers! That's why it's an ALPHA version!
-
-         Developer Note :
-          Why do you think all those issues exist? This is an ALPHA version!
-
-    </pre>
+  <div class="container">
+    <h1>Nightroot</h1>
+    <p>Download the installer and start your adventure! Once downloaded and executed a folder called Nightroot will be on your desktop. In that folder you will find the game exe</p>
+    <a href="InstallerNightroot.exe" download class="download-btn">⬇️ Download Installer (EXE)</a>
+  </div>
 </body>
+</html>
