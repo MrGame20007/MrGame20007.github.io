@@ -1,52 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Download My Game</title>
-  <style>
-    body {
-      background: linear-gradient(to right, #1a002c, #710094, #1a002c);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Border SMP</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to bottom, #87ceeb, #4b79a1);
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
 
-    .container {
-      text-align: center;
-      background-color: rgba(0, 0, 0, 0.4);
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
-    }
+/* Floating Minecraft blocks */
+.block {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-size: cover;
+    animation: floatBlock linear infinite;
+}
 
-    .download-btn {
-      display: inline-block;
-      padding: 12px 25px;
-      margin-top: 20px;
-      font-size: 18px;
-      background-color: #2b0036;
-      color: white;
-      text-decoration: none;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-    }
+@keyframes floatBlock {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
 
-    .download-btn:hover {
-      background-color: #ba00cb;
-    }
-  </style>
+/* Player avatars */
+.avatar {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+}
+
+/* Header */
+header {
+    text-align: center;
+    padding: 80px 20px 50px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 20px;
+    margin: 20px auto;
+    max-width: 900px;
+}
+
+header img.logo-main {
+    width: 120px;
+    height: auto;
+    margin-bottom: 15px;
+    border-radius: 15px;
+}
+
+header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #ffd700;
+    text-shadow: 2px 2px 10px #000;
+}
+
+header p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn {
+    display: inline-block;
+    background: #ff6f61;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+.btn:hover { background: #ff4b3e; }
+
+/* Section */
+section {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+section h2 {
+    font-family: 'Orbitron', sans-serif;
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+section p {
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.info {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: rgba(0,0,0,0.4);
+    padding: 30px;
+    border-radius: 15px;
+    min-width: 200px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.1);
+}
+
+.card h3 { margin-bottom: 15px; font-size: 1.5rem; }
+.card a { color: #ffd700; text-decoration: none; }
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.5);
+    margin-top: 50px;
+    border-radius: 15px;
+}
+
+/* Floating particles */
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.8);
+    border-radius: 50%;
+    animation: float 10s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-500px) translateX(100px); }
+    100% { transform: translateY(0) translateX(0); }
+}
+
+/* Minecraft grass animation */
+.grass {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    background: url('https://i.imgur.com/oJb8U9K.png') repeat-x bottom;
+    animation: grassMove 20s linear infinite;
+}
+
+@keyframes grassMove {
+    0% { background-position-x: 0; }
+    100% { background-position-x: 1000px; }
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Nightroot</h1>
-    <p>Download the installer and start your adventure! Once downloaded and executed a folder called Nightroot will be on your desktop. In that folder you will find the game exe</p>
-    <a href="InstallerNightroot.exe" download class="download-btn">⬇️ Download Installer (EXE)</a>
-  </div>
+
+<div class="grass"></div>
+
+<header>
+    <!-- Main Logo -->
+    <img src="logo1.png" alt="The Border SMP Logo" class="logo-main">
+
+    <h1>The Border SMP</h1>
+    <p>Join our survival SMP! Trapped inside a border. Can you survive?</p>
+
+    <a href="https://discord.gg/J6ykhNYKKT" target="_blank" class="btn">Join our Discord</a>
+</header>
+
+<section>
+    <h2>Server Info</h2>
+    <p>Connect to our Minecraft server and experience survival like never before. Only a few players, a massive challenge, and a unique world border await you.</p>
+    <div class="info">
+        <div class="card">
+            <h3>IP Address</h3>
+            <p><a href="minecraft://reply-terminal.joinmc.link">reply-terminal.joinmc.link</a></p>
+        </div>
+        <div class="card">
+            <h3>Discord</h3>
+            <p><a href="https://discord.gg/J6ykhNYKKT" target="_blank">Join Now</a></p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2025 The Border SMP. All rights reserved.</p>
+</footer>
+
+<script>
+// Floating particles
+for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    p.style.left = Math.random() * window.innerWidth + 'px';
+    p.style.top = Math.random() * window.innerHeight + 'px';
+    p.style.width = (Math.random() * 4 + 2) + 'px';
+    p.style.height = p.style.width;
+    p.style.animationDuration = (Math.random() * 10 + 5) + 's';
+    document.body.appendChild(p);
+}
+
+// Floating Minecraft blocks
+const blockImages = [
+    'https://i.imgur.com/4bKZ8Pj.png', // stone
+    'https://i.imgur.com/FRZfGkJ.png', // grass
+    'https://i.imgur.com/6vAtxjB.png'  // wood
+];
+for(let i=0;i<15;i++){
+    const b = document.createElement('div');
+    b.classList.add('block');
+    b.style.left = Math.random() * window.innerWidth + 'px';
+    b.style.backgroundImage = `url(${blockImages[Math.floor(Math.random()*blockImages.length)]})`;
+    b.style.animationDuration = (Math.random()*15 + 10) + 's';
+    document.body.appendChild(b);
+}
+
+// Floating player avatars (local files)
+const playerAvatars = [
+    'avatarHead.png',
+    'avatarHead1.png',
+    'avatarHead2.png',
+    'avatarHead3.png',
+    'avatarHead4.png',
+    'avatarHead5.png'
+];
+
+for (let i = 0; i < 7; i++) {
+    const a = document.createElement('img');
+    a.src = playerAvatars[Math.floor(Math.random() * playerAvatars.length)];
+    a.classList.add('avatar');
+
+    // Random size (e.g. between 40px and 80px)
+    const size = 40 + Math.random() * 40;
+    a.style.width = size + 'px';
+    a.style.height = size + 'px';
+
+    // Random vertical position
+    a.style.top = (100 + Math.random() * 300) + 'px';
+    // Random horizontal starting position
+    a.style.left = Math.random() * window.innerWidth + 'px';
+
+    document.body.appendChild(a);
+
+    // Random speed (e.g. between 0.2 and 0.8 px per frame)
+    let speed = 0.2 + Math.random() * 0.6;
+
+    function move() {
+        let currentLeft = parseFloat(a.style.left);
+        currentLeft += speed;
+        if (currentLeft > window.innerWidth) currentLeft = -size; // reset to left
+        a.style.left = currentLeft + 'px';
+        requestAnimationFrame(move);
+    }
+
+    move();
+}
+
+</script>
+
 </body>
 </html>
